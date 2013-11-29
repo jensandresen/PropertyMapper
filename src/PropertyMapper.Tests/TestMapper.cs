@@ -7,23 +7,49 @@ namespace PropertyMapper.Tests
   [TestFixture]
   public class TestMapper
   {
-    [Test]
-    public void can_map_simple_types_to_the_same_type()
+    [TestCase("foo", "bar", 1)]
+    [TestCase("baz", "qux", 2)]
+    public void can_map_simple_properties_on_instances_of_the_same_type(string expectedFirstName, string expectedLastName, int expectedAge)
     {
-      var source = new Person {FirstName = "foo", LastName = "bar", Age = 1};
+      var source = new Person {FirstName = expectedFirstName, LastName = expectedLastName, Age = expectedAge};
       var destination = new Person();
       
       Mapper.Map(source, destination);
 
-      Assert.AreEqual(source.FirstName, destination.FirstName);
-      Assert.AreEqual(source.LastName, destination.LastName);
-      Assert.AreEqual(source.Age, destination.Age);
+      Assert.AreEqual(expectedFirstName, destination.FirstName);
+      Assert.AreEqual(expectedLastName, destination.LastName);
+      Assert.AreEqual(expectedAge, destination.Age);
+    }
+
+    [TestCase("foo", 1)]
+    public void can_map_simple_properties_on_instance_of_the_same_type_with_private_setter(string expectedFirstName, int expectedAge)
+    {
+      var source = new PersonWithPrivateSetter("lala") { FirstName = expectedFirstName, Age = expectedAge };
+      var destination = new PersonWithPrivateSetter("123");
+
+      Mapper.Map(source, destination);
+
+      Assert.AreEqual(expectedFirstName, destination.FirstName);
+      Assert.AreEqual("123", destination.LastName);
+      Assert.AreEqual(expectedAge, destination.Age);
     }
 
     private class Person
     {
       public string FirstName { get; set; }
       public string LastName { get; set; }
+      public int Age { get; set; }
+    }
+
+    private class PersonWithPrivateSetter
+    {
+      public PersonWithPrivateSetter(string lastName)
+      {
+        LastName = lastName;
+      }
+
+      public string FirstName { get; set; }
+      public string LastName { get; private set; }
       public int Age { get; set; }
     }
   }
@@ -41,22 +67,25 @@ namespace PropertyMapper.Tests
 
         if (sourceProperty != null)
         {
-          CopyValue(source, sourceProperty, destination, destinationProperty);
+          CopyPropertyValue(source, sourceProperty, destination, destinationProperty);
         }
       }
     }
 
-    private static void CopyValue<TSource, TDestination>(TSource source, PropertyInfo sourceProperty, TDestination destination, PropertyInfo destinationProperty)
+    private static void CopyPropertyValue(object source, PropertyInfo sourceProperty, object destination, PropertyInfo destinationProperty)
     {
       var value = sourceProperty.GetValue(source, null);
       destinationProperty.SetValue(destination, value, null);
     }
 
-    private static PropertyInfo[] GetPropertiesFrom<TSource>(TSource source)
+    private static PropertyInfo[] GetPropertiesFrom(object source)
     {
       return source
         .GetType()
-        .GetProperties();
+        .GetProperties()
+        .Where(p => p.GetGetMethod(false) != null)
+        .Where(p => p.GetSetMethod(false) != null)
+        .ToArray();
     }
 
     private static bool IsMatch(PropertyInfo first, PropertyInfo second)
