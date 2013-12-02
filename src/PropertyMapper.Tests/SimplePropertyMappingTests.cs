@@ -3,7 +3,7 @@
 namespace PropertyMapper.Tests
 {
   [TestFixture]
-  public class TestMapper
+  public class SimplePropertyMappingTests
   {
     [TestCase("foo", "bar", 1)]
     [TestCase("baz", "qux", 2)]
