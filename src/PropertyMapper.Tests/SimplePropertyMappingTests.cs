@@ -31,24 +31,5 @@ namespace PropertyMapper.Tests
       Assert.AreEqual("123", destination.LastName);
       Assert.AreEqual(expectedAge, destination.Age);
     }
-
-    private class Person
-    {
-      public string FirstName { get; set; }
-      public string LastName { get; set; }
-      public int Age { get; set; }
-    }
-
-    private class PersonWithPrivateSetter
-    {
-      public PersonWithPrivateSetter(string lastName)
-      {
-        LastName = lastName;
-      }
-
-      public string FirstName { get; set; }
-      public string LastName { get; private set; }
-      public int Age { get; set; }
-    }
   }
 }
