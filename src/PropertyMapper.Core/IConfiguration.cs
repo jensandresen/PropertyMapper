@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq.Expressions;
 
-namespace PropertyMapper.Tests
+namespace PropertyMapper
 {
     public interface IConfiguration<TSource, TDestination>
     {

@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
 
-namespace PropertyMapper.Tests
+namespace PropertyMapper
 {
     public static class PropertyHelpers
     {
