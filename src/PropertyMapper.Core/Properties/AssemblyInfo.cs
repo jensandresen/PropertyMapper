@@ -5,10 +5,10 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("PropertyMapper.Tests")]
+[assembly: AssemblyTitle("PropertyMapper.Core")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyProduct("PropertyMapper.Tests")]
+[assembly: AssemblyProduct("PropertyMapper")]
 [assembly: AssemblyCopyright("Copyright © Jens Andresen 2013")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
