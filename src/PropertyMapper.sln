@@ -10,6 +10,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{B0C9C0
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PropertyMapper.Tests", "PropertyMapper.Tests\PropertyMapper.Tests.csproj", "{6FC18BE4-3E2E-458D-9BD5-FBF4B5C77C76}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PropertyMapper.Core", "PropertyMapper.Core\PropertyMapper.Core.csproj", "{A6706C87-FE61-4814-B32F-DD0778F7F11F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -20,6 +22,10 @@ Global
 		{6FC18BE4-3E2E-458D-9BD5-FBF4B5C77C76}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6FC18BE4-3E2E-458D-9BD5-FBF4B5C77C76}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6FC18BE4-3E2E-458D-9BD5-FBF4B5C77C76}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A6706C87-FE61-4814-B32F-DD0778F7F11F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A6706C87-FE61-4814-B32F-DD0778F7F11F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A6706C87-FE61-4814-B32F-DD0778F7F11F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A6706C87-FE61-4814-B32F-DD0778F7F11F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
