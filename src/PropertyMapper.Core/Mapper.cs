@@ -29,12 +29,7 @@ namespace PropertyMapper
                 return _propertyInfoes[targetedType];
             }
 
-            var properties = targetedType
-                .GetProperties()
-                .Where(p => p.GetGetMethod(false) != null)
-                .Where(p => p.GetSetMethod(false) != null)
-                .ToArray();
-
+            var properties = PropertyHelpers.GetAvailablePropertiesFrom(targetedType);
             _propertyInfoes.Add(targetedType, properties);
 
             return properties;
