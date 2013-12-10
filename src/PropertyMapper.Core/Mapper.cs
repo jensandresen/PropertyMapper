@@ -49,16 +49,10 @@ namespace PropertyMapper
 
                     if (sourceProperty != null)
                     {
-                        CopyPropertyValue(source, sourceProperty, destination, destinationProperty);
+                        PropertyHelpers.CopyPropertyValue(source, sourceProperty, destination, destinationProperty);
                     }
                 }
             }
-        }
-
-        private static void CopyPropertyValue(object source, PropertyInfo sourceProperty, object destination, PropertyInfo destinationProperty)
-        {
-            var value = sourceProperty.GetValue(source, null);
-            destinationProperty.SetValue(destination, value, null);
         }
 
         private static PropertyInfo[] GetPropertiesFrom(object source)

@@ -20,5 +20,11 @@ namespace PropertyMapper
                 .Where(p => p.GetSetMethod(false) != null)
                 .ToArray();
         }
+
+        public static void CopyPropertyValue(object source, PropertyInfo sourceProperty, object destination, PropertyInfo destinationProperty)
+        {
+            var value = sourceProperty.GetValue(source, null);
+            destinationProperty.SetValue(destination, value, null);
+        }
     }
 }
