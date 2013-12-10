@@ -38,19 +38,29 @@ namespace PropertyMapper
                 configurator(cfg);
             }
 
+            var propertyPairs = CreatePropertyPairsFrom(source, destination);
+
+            foreach (var pair in propertyPairs)
+            {
+                if (!cfg.ShouldBeIgnored(pair.DestinationProperty))
+                {
+                    PropertyHelpers.CopyPropertyValue(source, pair.SourceProperty, destination, pair.DestinationProperty);
+                }
+            }
+        }
+
+        private static IEnumerable<PropertyPair> CreatePropertyPairsFrom(object source, object destination)
+        {
             var sourceProperties = GetPropertiesFrom(source);
             var destinationProperties = GetPropertiesFrom(destination);
 
             foreach (var destinationProperty in destinationProperties)
             {
-                if (!cfg.ShouldBeIgnored(destinationProperty))
-                {
-                    var sourceProperty = sourceProperties.SingleOrDefault(info => IsMatch(info, destinationProperty));
+                var sourceProperty = sourceProperties.SingleOrDefault(info => IsMatch(info, destinationProperty));
 
-                    if (sourceProperty != null)
-                    {
-                        PropertyHelpers.CopyPropertyValue(source, sourceProperty, destination, destinationProperty);
-                    }
+                if (sourceProperty != null)
+                {
+                    yield return new PropertyPair(sourceProperty, destinationProperty);
                 }
             }
         }
@@ -74,5 +84,17 @@ namespace PropertyMapper
         {
             return PropertyHelpers.IsMatch(first, second);
         }
+    }
+
+    public class PropertyPair
+    {
+        public PropertyPair(PropertyInfo source, PropertyInfo destination)
+        {
+            SourceProperty = source;
+            DestinationProperty = destination;
+        }
+
+        public PropertyInfo SourceProperty { get; private set; }
+        public PropertyInfo DestinationProperty { get; private set; }
     }
 }
