@@ -50,6 +50,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DirectNameAndTypeMatchStrategyTests.cs" />
     <Compile Include="FlatteningObjectTests.cs" />
     <Compile Include="IgnoringPropertiesTests.cs" />
     <Compile Include="Person.cs" />
