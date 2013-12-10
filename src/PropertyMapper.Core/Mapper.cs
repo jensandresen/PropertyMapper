@@ -7,8 +7,6 @@ namespace PropertyMapper
 {
     public class Mapper
     {
-        private static readonly IDictionary<Type, PropertyInfo[]> _propertyInfoes = new Dictionary<Type, PropertyInfo[]>();
-
         /// <summary>
         /// Copy the value of all properties that has read and write access on both source and destination.
         /// </summary>
@@ -67,17 +65,10 @@ namespace PropertyMapper
             }
         }
 
-        private static PropertyInfo[] GetPropertiesFrom(object source)
+        private static IProperty[] GetPropertiesFrom(object source)
         {
             var targetedType = source.GetType();
-
-            if (_propertyInfoes.ContainsKey(targetedType))
-            {
-                return _propertyInfoes[targetedType];
-            }
-
             var properties = PropertyHelpers.GetAvailablePropertiesFrom(targetedType);
-            _propertyInfoes.Add(targetedType, properties);
 
             return properties;
         }
@@ -85,14 +76,14 @@ namespace PropertyMapper
 
     public class PropertyPair
     {
-        public PropertyPair(PropertyInfo source, PropertyInfo destination)
+        public PropertyPair(IProperty source, IProperty destination)
         {
             SourceProperty = source;
             DestinationProperty = destination;
         }
 
-        public PropertyInfo SourceProperty { get; private set; }
-        public PropertyInfo DestinationProperty { get; private set; }
+        public IProperty SourceProperty { get; private set; }
+        public IProperty DestinationProperty { get; private set; }
 
         public void CopyValue(object source, object destination)
         {
@@ -102,10 +93,10 @@ namespace PropertyMapper
 
     public class SourcePropertiesAnalyzer
     {
-        private readonly PropertyInfo[] _properties;
+        private readonly IProperty[] _properties;
         private readonly IPropertySearchStrategy[] _strategies;
 
-        public SourcePropertiesAnalyzer(IEnumerable<PropertyInfo> properties)
+        public SourcePropertiesAnalyzer(IEnumerable<IProperty> properties)
         {
             _properties = properties.ToArray(); // refactor this!
 
@@ -115,7 +106,7 @@ namespace PropertyMapper
             };
         }
 
-        public PropertyInfo GetMatchFor(PropertyInfo destinationProperty)
+        public IProperty GetMatchFor(IProperty destinationProperty)
         {
             foreach (var strategy in _strategies)
             {
@@ -133,29 +124,29 @@ namespace PropertyMapper
 
     public interface IPropertySearchStrategy
     {
-        PropertyInfo GetMatchFor(PropertyInfo destinationProperty);
+        IProperty GetMatchFor(IProperty destinationProperty);
     }
 
     public abstract class SearchStrategyBase : IPropertySearchStrategy
     {
-        protected SearchStrategyBase(IEnumerable<PropertyInfo> properties)
+        protected SearchStrategyBase(IEnumerable<IProperty> properties)
         {
             Properties = properties;
         }
 
-        protected IEnumerable<PropertyInfo> Properties { get; private set; }
+        protected IEnumerable<IProperty> Properties { get; private set; }
 
-        public abstract PropertyInfo GetMatchFor(PropertyInfo destinationProperty);
+        public abstract IProperty GetMatchFor(IProperty destinationProperty);
     }
 
     public class DirectNameAndTypeMatchStrategy : SearchStrategyBase
     {
-        public DirectNameAndTypeMatchStrategy(IEnumerable<PropertyInfo> properties) : base(properties)
+        public DirectNameAndTypeMatchStrategy(IEnumerable<IProperty> properties) : base(properties)
         {
 
         }
 
-        public override PropertyInfo GetMatchFor(PropertyInfo destinationProperty)
+        public override IProperty GetMatchFor(IProperty destinationProperty)
         {
             foreach (var sourceProperty in Properties)
             {
@@ -168,6 +159,45 @@ namespace PropertyMapper
             }
 
             return null;
+        }
+    }
+
+    public interface IProperty
+    {
+        string Name { get; }
+        Type Type { get; }
+
+        object GetValue(object instance);
+        void SetValue(object instance, object value);
+    }
+
+    public class PropertyInfoAdapter : IProperty
+    {
+        private readonly PropertyInfo _propertyInfo;
+
+        public PropertyInfoAdapter(PropertyInfo propertyInfo)
+        {
+            _propertyInfo = propertyInfo;
+        }
+
+        public string Name
+        {
+            get { return _propertyInfo.Name; }
+        }
+
+        public Type Type
+        {
+            get { return _propertyInfo.PropertyType; }
+        }
+
+        public object GetValue(object instance)
+        {
+            return _propertyInfo.GetValue(instance, null);
+        }
+
+        public void SetValue(object instance, object value)
+        {
+            _propertyInfo.SetValue(instance, value, null);
         }
     }
 }

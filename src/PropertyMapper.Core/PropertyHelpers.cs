@@ -12,12 +12,20 @@ namespace PropertyMapper
                    first.Name == second.Name;
         }
 
-        public static PropertyInfo[] GetAvailablePropertiesFrom(Type targetedType)
+        public static bool IsMatch(IProperty first, IProperty second)
+        {
+            return first.Type == second.Type &&
+                   first.Name == second.Name;
+        }
+
+        public static IProperty[] GetAvailablePropertiesFrom(Type targetedType)
         {
             return targetedType
                 .GetProperties()
                 .Where(p => p.GetGetMethod(false) != null)
                 .Where(p => p.GetSetMethod(false) != null)
+                .Select(p => new PropertyInfoAdapter(p))
+                .Cast<IProperty>() // todo: remove this!
                 .ToArray();
         }
 
@@ -25,6 +33,12 @@ namespace PropertyMapper
         {
             var value = sourceProperty.GetValue(source, null);
             destinationProperty.SetValue(destination, value, null);
+        }
+
+        public static void CopyPropertyValue(object source, IProperty sourceProperty, object destination, IProperty destinationProperty)
+        {
+            var value = sourceProperty.GetValue(source);
+            destinationProperty.SetValue(destination, value);
         }
     }
 }
