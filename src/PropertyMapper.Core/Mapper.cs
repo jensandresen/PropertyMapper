@@ -44,7 +44,7 @@ namespace PropertyMapper
             {
                 if (!cfg.ShouldBeIgnored(pair.DestinationProperty))
                 {
-                    PropertyHelpers.CopyPropertyValue(source, pair.SourceProperty, destination, pair.DestinationProperty);
+                    pair.CopyValue(source, destination);
                 }
             }
         }
@@ -96,5 +96,10 @@ namespace PropertyMapper
 
         public PropertyInfo SourceProperty { get; private set; }
         public PropertyInfo DestinationProperty { get; private set; }
+
+        public void CopyValue(object source, object destination)
+        {
+            PropertyHelpers.CopyPropertyValue(source, SourceProperty, destination, DestinationProperty);
+        }
     }
 }
