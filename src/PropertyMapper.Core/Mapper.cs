@@ -54,9 +54,11 @@ namespace PropertyMapper
             var sourceProperties = GetPropertiesFrom(source);
             var destinationProperties = GetPropertiesFrom(destination);
 
+            var analyzer = new SourcePropertiesAnalyzer(sourceProperties);
+
             foreach (var destinationProperty in destinationProperties)
             {
-                var sourceProperty = sourceProperties.SingleOrDefault(info => IsMatch(info, destinationProperty));
+                var sourceProperty = analyzer.GetMatchFor(destinationProperty);
 
                 if (sourceProperty != null)
                 {
@@ -79,11 +81,6 @@ namespace PropertyMapper
 
             return properties;
         }
-
-        private static bool IsMatch(PropertyInfo first, PropertyInfo second)
-        {
-            return PropertyHelpers.IsMatch(first, second);
-        }
     }
 
     public class PropertyPair
@@ -100,6 +97,77 @@ namespace PropertyMapper
         public void CopyValue(object source, object destination)
         {
             PropertyHelpers.CopyPropertyValue(source, SourceProperty, destination, DestinationProperty);
+        }
+    }
+
+    public class SourcePropertiesAnalyzer
+    {
+        private readonly PropertyInfo[] _properties;
+        private readonly IPropertySearchStrategy[] _strategies;
+
+        public SourcePropertiesAnalyzer(IEnumerable<PropertyInfo> properties)
+        {
+            _properties = properties.ToArray(); // refactor this!
+
+            _strategies = new IPropertySearchStrategy[]
+            {
+                new DirectNameAndTypeMatchStrategy(_properties), 
+            };
+        }
+
+        public PropertyInfo GetMatchFor(PropertyInfo destinationProperty)
+        {
+            foreach (var strategy in _strategies)
+            {
+                var matchingProperty = strategy.GetMatchFor(destinationProperty);
+
+                if (matchingProperty != null)
+                {
+                    return matchingProperty;
+                }
+            }
+
+            return null;
+        }
+    }
+
+    public interface IPropertySearchStrategy
+    {
+        PropertyInfo GetMatchFor(PropertyInfo destinationProperty);
+    }
+
+    public abstract class SearchStrategyBase : IPropertySearchStrategy
+    {
+        protected SearchStrategyBase(IEnumerable<PropertyInfo> properties)
+        {
+            Properties = properties;
+        }
+
+        protected IEnumerable<PropertyInfo> Properties { get; private set; }
+
+        public abstract PropertyInfo GetMatchFor(PropertyInfo destinationProperty);
+    }
+
+    public class DirectNameAndTypeMatchStrategy : SearchStrategyBase
+    {
+        public DirectNameAndTypeMatchStrategy(IEnumerable<PropertyInfo> properties) : base(properties)
+        {
+
+        }
+
+        public override PropertyInfo GetMatchFor(PropertyInfo destinationProperty)
+        {
+            foreach (var sourceProperty in Properties)
+            {
+                var isMatch = PropertyHelpers.IsMatch(sourceProperty, destinationProperty);
+
+                if (isMatch)
+                {
+                    return sourceProperty;
+                }
+            }
+
+            return null;
         }
     }
 }
