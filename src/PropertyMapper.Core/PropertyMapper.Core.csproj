@@ -41,9 +41,11 @@
   <ItemGroup>
     <Compile Include="Configuration.cs" />
     <Compile Include="IConfiguration.cs" />
+    <Compile Include="IProperty.cs" />
     <Compile Include="Mapper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PropertyHelpers.cs" />
+    <Compile Include="PropertyInfoAdapter.cs" />
     <Compile Include="StringHelper.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
