@@ -206,19 +206,19 @@ namespace PropertyMapper
             var expectedSourceAssociationPropertyName = names[0];
             var expectedSourcePropertyName = names[1];
 
-            foreach (var sourceProperty in Properties)
+            foreach (var associationProperty in Properties)
             {
-                if (sourceProperty.Name == expectedSourceAssociationPropertyName)
+                if (associationProperty.Name == expectedSourceAssociationPropertyName)
                 {
-                    var temp = PropertyHelpers.GetAvailablePropertiesFrom(sourceProperty.Type);
+                    var sourceProperties = PropertyHelpers.GetAvailablePropertiesFrom(associationProperty.Type);
 
-                    foreach (var property in temp)
+                    foreach (var sourceProperty in sourceProperties)
                     {
-                        var isMatch = PropertyHelpers.IsMatch(property.Type, property.Name, destinationProperty.Type, expectedSourcePropertyName);
+                        var isMatch = PropertyHelpers.IsMatch(sourceProperty.Type, sourceProperty.Name, destinationProperty.Type, expectedSourcePropertyName);
 
                         if (isMatch)
                         {
-                            return new AssociationPropertyBridge(sourceProperty, property, destinationProperty);
+                            return new AssociationPropertyBridge(associationProperty, sourceProperty, destinationProperty);
                         }
                     }
                 }
