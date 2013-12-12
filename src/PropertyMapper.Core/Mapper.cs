@@ -46,7 +46,7 @@ namespace PropertyMapper
             }
         }
 
-        private static IEnumerable<PropertyPair> CreatePropertyPairsFrom(object source, object destination)
+        private static IEnumerable<PropertyBridge> CreatePropertyPairsFrom(object source, object destination)
         {
             var sourceProperties = GetPropertiesFrom(source);
             var destinationProperties = GetPropertiesFrom(destination);
@@ -59,7 +59,7 @@ namespace PropertyMapper
 
                 if (sourceProperty != null)
                 {
-                    yield return new PropertyPair(sourceProperty, destinationProperty);
+                    yield return sourceProperty;
                 }
             }
         }
@@ -73,9 +73,9 @@ namespace PropertyMapper
         }
     }
 
-    public class PropertyPair
+    public class PropertyBridge
     {
-        public PropertyPair(IProperty source, IProperty destination)
+        public PropertyBridge(IProperty source, IProperty destination)
         {
             SourceProperty = source;
             DestinationProperty = destination;
@@ -105,7 +105,7 @@ namespace PropertyMapper
             };
         }
 
-        public IProperty GetMatchFor(IProperty destinationProperty)
+        public PropertyBridge GetMatchFor(IProperty destinationProperty)
         {
             foreach (var strategy in _strategies)
             {
@@ -123,7 +123,7 @@ namespace PropertyMapper
 
     public interface IPropertySearchStrategy
     {
-        IProperty GetMatchFor(IProperty destinationProperty);
+        PropertyBridge GetMatchFor(IProperty destinationProperty);
     }
 
     public abstract class SearchStrategyBase : IPropertySearchStrategy
@@ -135,7 +135,7 @@ namespace PropertyMapper
 
         protected IEnumerable<IProperty> Properties { get; private set; }
 
-        public abstract IProperty GetMatchFor(IProperty destinationProperty);
+        public abstract PropertyBridge GetMatchFor(IProperty destinationProperty);
     }
 
     public class DirectNameAndTypeMatchStrategy : SearchStrategyBase
@@ -145,7 +145,7 @@ namespace PropertyMapper
 
         }
 
-        public override IProperty GetMatchFor(IProperty destinationProperty)
+        public override PropertyBridge GetMatchFor(IProperty destinationProperty)
         {
             foreach (var sourceProperty in Properties)
             {
@@ -153,11 +153,26 @@ namespace PropertyMapper
 
                 if (isMatch)
                 {
-                    return sourceProperty;
+                    return new PropertyBridge(sourceProperty, destinationProperty);
                 }
             }
 
             return null;
         }
     }
+
+    public class AssociationMatchStrategy : SearchStrategyBase
+    {
+        public AssociationMatchStrategy(IEnumerable<IProperty> properties)
+            : base(properties)
+        {
+
+        }
+
+        public override PropertyBridge GetMatchFor(IProperty destinationProperty)
+        {
+            return null;
+        }
+    }
+
 }

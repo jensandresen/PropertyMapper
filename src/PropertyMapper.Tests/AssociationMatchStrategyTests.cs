@@ -37,16 +37,4 @@ namespace PropertyMapper.Tests
         }
     }
 
-    public class AssociationMatchStrategy : SearchStrategyBase
-    {
-        public AssociationMatchStrategy(IEnumerable<IProperty> properties) : base(properties)
-        {
-
-        }
-
-        public override IProperty GetMatchFor(IProperty destinationProperty)
-        {
-            return null;
-        }
-    }
 }

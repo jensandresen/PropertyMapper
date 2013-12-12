@@ -20,8 +20,8 @@ namespace PropertyMapper.Tests
 
             var actual = sut.GetMatchFor(sourceProperty);
 
-            Assert.AreEqual(sourceProperty.Name, actual.Name);
-            Assert.AreEqual(sourceProperty.Type, actual.Type);
+            Assert.AreEqual(sourceProperty.Name, actual.SourceProperty.Name);
+            Assert.AreEqual(sourceProperty.Type, actual.SourceProperty.Type);
         }
 
         [Test]
