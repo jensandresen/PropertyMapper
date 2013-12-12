@@ -35,18 +35,18 @@ namespace PropertyMapper
                 configurator(cfg);
             }
 
-            var propertyPairs = CreatePropertyPairsFrom(source, destination);
+            var propertyBridges = CreatePropertyBridgesFrom(source, destination);
 
-            foreach (var pair in propertyPairs)
+            foreach (var bridge in propertyBridges)
             {
-                if (!cfg.ShouldBeIgnored(pair.DestinationProperty))
+                if (!cfg.ShouldBeIgnored(bridge.DestinationProperty))
                 {
-                    pair.CopyValue(source, destination);
+                    bridge.CopyValue(source, destination);
                 }
             }
         }
 
-        private static IEnumerable<PropertyBridge> CreatePropertyPairsFrom(object source, object destination)
+        private static IEnumerable<PropertyBridge> CreatePropertyBridgesFrom(object source, object destination)
         {
             var sourceProperties = GetPropertiesFrom(source);
             var destinationProperties = GetPropertiesFrom(destination);
@@ -86,7 +86,29 @@ namespace PropertyMapper
 
         public void CopyValue(object source, object destination)
         {
-            PropertyHelpers.CopyPropertyValue(source, SourceProperty, destination, DestinationProperty);
+            var value = GetValueFromInstance(source);
+            DestinationProperty.SetValue(destination, value);
+        }
+
+        protected virtual object GetValueFromInstance(object source)
+        {
+            return SourceProperty.GetValue(source);
+        }
+    }
+
+    public class AssociationPropertyBridge : PropertyBridge
+    {
+        private readonly IProperty _associationSource;
+
+        public AssociationPropertyBridge(IProperty source, IProperty associationSource, IProperty destination) : base(source, destination)
+        {
+            _associationSource = associationSource;
+        }
+
+        protected override object GetValueFromInstance(object source)
+        {
+            var association = base.GetValueFromInstance(source);
+            return _associationSource.GetValue(association);
         }
     }
 
@@ -101,7 +123,8 @@ namespace PropertyMapper
 
             _strategies = new IPropertySearchStrategy[]
             {
-                new DirectNameAndTypeMatchStrategy(_properties), 
+                new DirectNameAndTypeMatchStrategy(_properties),
+                new AssociationMatchStrategy(_properties), 
             };
         }
 
@@ -109,11 +132,11 @@ namespace PropertyMapper
         {
             foreach (var strategy in _strategies)
             {
-                var matchingProperty = strategy.GetMatchFor(destinationProperty);
+                var matchingBridge = strategy.GetMatchFor(destinationProperty);
 
-                if (matchingProperty != null)
+                if (matchingBridge != null)
                 {
-                    return matchingProperty;
+                    return matchingBridge;
                 }
             }
 
@@ -171,6 +194,36 @@ namespace PropertyMapper
 
         public override PropertyBridge GetMatchFor(IProperty destinationProperty)
         {
+            var names = StringHelper
+                .SplitByPascalCasing(destinationProperty.Name)
+                .ToArray();
+
+            if (names.Length != 2)
+            {
+                return null;
+            }
+
+            var expectedSourceAssociationPropertyName = names[0];
+            var expectedSourcePropertyName = names[1];
+
+            foreach (var sourceProperty in Properties)
+            {
+                if (sourceProperty.Name == expectedSourceAssociationPropertyName)
+                {
+                    var temp = PropertyHelpers.GetAvailablePropertiesFrom(sourceProperty.Type);
+
+                    foreach (var property in temp)
+                    {
+                        var isMatch = PropertyHelpers.IsMatch(property.Type, property.Name, destinationProperty.Type, expectedSourcePropertyName);
+
+                        if (isMatch)
+                        {
+                            return new AssociationPropertyBridge(sourceProperty, property, destinationProperty);
+                        }
+                    }
+                }
+            }
+
             return null;
         }
     }

@@ -7,8 +7,13 @@ namespace PropertyMapper
     {
         public static bool IsMatch(IProperty first, IProperty second)
         {
-            return first.Type == second.Type &&
-                   first.Name == second.Name;
+            return IsMatch(first.Type, first.Name, second.Type, second.Name);
+        }
+
+        public static bool IsMatch(Type sourceType, string sourceName, Type destinationType, string destinationName)
+        {
+            return sourceType == destinationType &&
+                   sourceName == destinationName;
         }
 
         public static IProperty[] GetAvailablePropertiesFrom(Type targetedType)
@@ -20,12 +25,6 @@ namespace PropertyMapper
                 .Select(p => new PropertyInfoAdapter(p))
                 .Cast<IProperty>() // todo: remove this!
                 .ToArray();
-        }
-
-        public static void CopyPropertyValue(object source, IProperty sourceProperty, object destination, IProperty destinationProperty)
-        {
-            var value = sourceProperty.GetValue(source);
-            destinationProperty.SetValue(destination, value);
         }
     }
 }
