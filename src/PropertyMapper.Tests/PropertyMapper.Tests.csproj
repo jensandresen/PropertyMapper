@@ -59,6 +59,7 @@
     <Compile Include="SimplePropertyMappingTests.cs" />
     <Compile Include="StringHelperTests.cs" />
     <Compile Include="TestDoubles\FakeProperty.cs" />
+    <Compile Include="TestDoubles\StubPropertyRepository.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

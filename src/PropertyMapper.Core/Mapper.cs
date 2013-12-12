@@ -48,7 +48,7 @@ namespace PropertyMapper
 
         private static IEnumerable<PropertyBridge> CreatePropertyBridgesFrom(object source, object destination)
         {
-            var analyzer = new SourcePropertiesAnalyzer(source);
+            var analyzer = new SourcePropertiesAnalyzer(new InstancePropertyRepository(source));
             var destinationProperties = PropertyHelpers.GetAvailablePropertiesFrom(destination);
 
             foreach (var destinationProperty in destinationProperties)
@@ -104,17 +104,14 @@ namespace PropertyMapper
 
     public class SourcePropertiesAnalyzer
     {
-        private readonly IProperty[] _sourceProperties;
         private readonly IPropertySearchStrategy[] _strategies;
 
-        public SourcePropertiesAnalyzer(object source)
+        public SourcePropertiesAnalyzer(IPropertyRepository sourcePropertyRepository)
         {
-            _sourceProperties = PropertyHelpers.GetAvailablePropertiesFrom(source);
-
             _strategies = new IPropertySearchStrategy[]
             {
-                new DirectNameAndTypeMatchStrategy(_sourceProperties),
-                new AssociationMatchStrategy(_sourceProperties), 
+                new DirectNameAndTypeMatchStrategy(sourcePropertyRepository),
+                new AssociationMatchStrategy(sourcePropertyRepository), 
             };
         }
 
@@ -141,26 +138,31 @@ namespace PropertyMapper
 
     public abstract class SearchStrategyBase : IPropertySearchStrategy
     {
-        protected SearchStrategyBase(IEnumerable<IProperty> properties)
+        private readonly IPropertyRepository _propertyRepository;
+
+        protected SearchStrategyBase(IPropertyRepository propertyRepository)
         {
-            Properties = properties;
+            _propertyRepository = propertyRepository;
         }
 
-        protected IEnumerable<IProperty> Properties { get; private set; }
+        protected IPropertyRepository PropertyRepository
+        {
+            get { return _propertyRepository; }
+        }
 
         public abstract PropertyBridge GetMatchFor(IProperty destinationProperty);
     }
 
     public class DirectNameAndTypeMatchStrategy : SearchStrategyBase
     {
-        public DirectNameAndTypeMatchStrategy(IEnumerable<IProperty> properties) : base(properties)
+        public DirectNameAndTypeMatchStrategy(IPropertyRepository propertyRepository) : base(propertyRepository)
         {
 
         }
 
         public override PropertyBridge GetMatchFor(IProperty destinationProperty)
         {
-            foreach (var sourceProperty in Properties)
+            foreach (var sourceProperty in PropertyRepository.GetAll())
             {
                 var isMatch = PropertyHelpers.IsMatch(sourceProperty, destinationProperty);
 
@@ -176,8 +178,7 @@ namespace PropertyMapper
 
     public class AssociationMatchStrategy : SearchStrategyBase
     {
-        public AssociationMatchStrategy(IEnumerable<IProperty> properties)
-            : base(properties)
+        public AssociationMatchStrategy(IPropertyRepository propertyRepository) : base(propertyRepository)
         {
 
         }
@@ -196,7 +197,7 @@ namespace PropertyMapper
             var expectedSourceAssociationPropertyName = names[0];
             var expectedSourcePropertyName = names[1];
 
-            foreach (var associationProperty in Properties)
+            foreach (var associationProperty in PropertyRepository.GetAll())
             {
                 if (associationProperty.Name == expectedSourceAssociationPropertyName)
                 {
@@ -218,4 +219,38 @@ namespace PropertyMapper
         }
     }
 
+    public interface IPropertyRepository
+    {
+        IEnumerable<IProperty> GetAll();
+    }
+
+    public class InstancePropertyRepository : IPropertyRepository
+    {
+        private readonly object _sourceInstance;
+
+        public InstancePropertyRepository(object sourceInstance)
+        {
+            _sourceInstance = sourceInstance;
+        }
+
+        public IEnumerable<IProperty> GetAll()
+        {
+            return PropertyHelpers.GetAvailablePropertiesFrom(_sourceInstance);
+        }
+    }
+
+    public class TypePropertyRepository : IPropertyRepository
+    {
+        private readonly Type _sourceType;
+
+        public TypePropertyRepository(Type sourceType)
+        {
+            _sourceType = sourceType;
+        }
+
+        public IEnumerable<IProperty> GetAll()
+        {
+            return PropertyHelpers.GetAvailablePropertiesFrom(_sourceType);
+        }
+    }
 }
