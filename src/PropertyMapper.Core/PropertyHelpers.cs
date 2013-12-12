@@ -26,5 +26,14 @@ namespace PropertyMapper
                 .Cast<IProperty>() // todo: remove this!
                 .ToArray();
         }
+
+        public static IProperty[] GetAvailablePropertiesFrom(object target)
+        {
+            var targetedType = target.GetType();
+            var properties = GetAvailablePropertiesFrom(targetedType);
+
+            return properties;
+            
+        }
     }
 }

@@ -48,28 +48,18 @@ namespace PropertyMapper
 
         private static IEnumerable<PropertyBridge> CreatePropertyBridgesFrom(object source, object destination)
         {
-            var sourceProperties = GetPropertiesFrom(source);
-            var destinationProperties = GetPropertiesFrom(destination);
-
-            var analyzer = new SourcePropertiesAnalyzer(sourceProperties);
+            var analyzer = new SourcePropertiesAnalyzer(source);
+            var destinationProperties = PropertyHelpers.GetAvailablePropertiesFrom(destination);
 
             foreach (var destinationProperty in destinationProperties)
             {
-                var sourceProperty = analyzer.GetMatchFor(destinationProperty);
+                var propertyBridge = analyzer.GetMatchFor(destinationProperty);
 
-                if (sourceProperty != null)
+                if (propertyBridge != null)
                 {
-                    yield return sourceProperty;
+                    yield return propertyBridge;
                 }
             }
-        }
-
-        private static IProperty[] GetPropertiesFrom(object source)
-        {
-            var targetedType = source.GetType();
-            var properties = PropertyHelpers.GetAvailablePropertiesFrom(targetedType);
-
-            return properties;
         }
     }
 
@@ -114,17 +104,17 @@ namespace PropertyMapper
 
     public class SourcePropertiesAnalyzer
     {
-        private readonly IProperty[] _properties;
+        private readonly IProperty[] _sourceProperties;
         private readonly IPropertySearchStrategy[] _strategies;
 
-        public SourcePropertiesAnalyzer(IEnumerable<IProperty> properties)
+        public SourcePropertiesAnalyzer(object source)
         {
-            _properties = properties.ToArray(); // refactor this!
+            _sourceProperties = PropertyHelpers.GetAvailablePropertiesFrom(source);
 
             _strategies = new IPropertySearchStrategy[]
             {
-                new DirectNameAndTypeMatchStrategy(_properties),
-                new AssociationMatchStrategy(_properties), 
+                new DirectNameAndTypeMatchStrategy(_sourceProperties),
+                new AssociationMatchStrategy(_sourceProperties), 
             };
         }
 
