@@ -35,7 +35,7 @@ namespace PropertyMapper
                 configurator(cfg);
             }
 
-            var propertyBridges = CreatePropertyBridgesFrom(source, destination);
+            var propertyBridges = GetPropertyBridgesFor(source, destination);
 
             foreach (var bridge in propertyBridges)
             {
@@ -46,9 +46,10 @@ namespace PropertyMapper
             }
         }
 
-        private static IEnumerable<PropertyBridge> CreatePropertyBridgesFrom(object source, object destination)
+        private static IEnumerable<PropertyBridge> GetPropertyBridgesFor(object source, object destination)
         {
-            var analyzer = new SourcePropertiesAnalyzer(new InstancePropertyRepository(source));
+            var sourcePropertyRepository = new InstancePropertyRepository(source);
+            var analyzer = new SourcePropertiesAnalyzer(sourcePropertyRepository);
             var destinationProperties = PropertyHelpers.GetAvailablePropertiesFrom(destination);
 
             foreach (var destinationProperty in destinationProperties)
@@ -76,11 +77,16 @@ namespace PropertyMapper
 
         public void CopyValue(object source, object destination)
         {
-            var value = GetValueFromInstance(source);
+            var value = GetValueFromSourceInstance(source);
+            SetValueOnDestinationInstance(destination, value);
+        }
+
+        protected virtual void SetValueOnDestinationInstance(object destination, object value)
+        {
             DestinationProperty.SetValue(destination, value);
         }
 
-        protected virtual object GetValueFromInstance(object source)
+        protected virtual object GetValueFromSourceInstance(object source)
         {
             return SourceProperty.GetValue(source);
         }
@@ -95,9 +101,9 @@ namespace PropertyMapper
             _associationSource = associationSource;
         }
 
-        protected override object GetValueFromInstance(object source)
+        protected override object GetValueFromSourceInstance(object source)
         {
-            var association = base.GetValueFromInstance(source);
+            var association = base.GetValueFromSourceInstance(source);
             return _associationSource.GetValue(association);
         }
     }
