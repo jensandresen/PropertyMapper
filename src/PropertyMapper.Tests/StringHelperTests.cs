@@ -15,5 +15,17 @@ namespace PropertyMapper.Tests
 
             CollectionAssert.AreEquivalent(expected, result);
         }
+
+        [TestCase("FooBar", "Foo", "Bar")]
+        [TestCase("FooBarBaz", "Foo", "BarBaz")]
+        [TestCase("FooBarBazQux", "Foo", "BarBazQux")]
+        [TestCase("Foo", "Foo", null)]
+        public void can_split_on_first_word(string input, string expectedWord, string expectedRemainin)
+        {
+            var result = StringHelper.SplitOnFirstWord(input);
+
+            Assert.AreEqual(expectedWord, result.FirstWord);
+            Assert.AreEqual(expectedRemainin, result.Remaining);
+        }
     }
 }
