@@ -54,7 +54,7 @@ namespace PropertyMapper
 
             foreach (var destinationProperty in destinationProperties)
             {
-                var propertyBridge = analyzer.GetMatchFor(destinationProperty);
+                var propertyBridge = analyzer.GetBridgeFor(destinationProperty);
 
                 if (propertyBridge != null)
                 {
@@ -121,11 +121,11 @@ namespace PropertyMapper
             };
         }
 
-        public PropertyBridge GetMatchFor(IProperty destinationProperty)
+        public PropertyBridge GetBridgeFor(IProperty destinationProperty)
         {
             foreach (var strategy in _strategies)
             {
-                var matchingBridge = strategy.GetMatchFor(destinationProperty);
+                var matchingBridge = strategy.GetBridgeFor(destinationProperty);
 
                 if (matchingBridge != null)
                 {
@@ -139,7 +139,7 @@ namespace PropertyMapper
 
     public interface IPropertySearchStrategy
     {
-        PropertyBridge GetMatchFor(IProperty destinationProperty);
+        PropertyBridge GetBridgeFor(IProperty destinationProperty);
     }
 
     public abstract class SearchStrategyBase : IPropertySearchStrategy
@@ -156,7 +156,7 @@ namespace PropertyMapper
             get { return _propertyRepository; }
         }
 
-        public abstract PropertyBridge GetMatchFor(IProperty destinationProperty);
+        public abstract PropertyBridge GetBridgeFor(IProperty destinationProperty);
     }
 
     public class DirectNameAndTypeMatchStrategy : SearchStrategyBase
@@ -166,7 +166,7 @@ namespace PropertyMapper
 
         }
 
-        public override PropertyBridge GetMatchFor(IProperty destinationProperty)
+        public override PropertyBridge GetBridgeFor(IProperty destinationProperty)
         {
             foreach (var sourceProperty in PropertyRepository.GetAll())
             {
@@ -189,7 +189,7 @@ namespace PropertyMapper
 
         }
 
-        public override PropertyBridge GetMatchFor(IProperty destinationProperty)
+        public override PropertyBridge GetBridgeFor(IProperty destinationProperty)
         {
             var names = StringHelper
                 .SplitByPascalCasing(destinationProperty.Name)
@@ -222,41 +222,6 @@ namespace PropertyMapper
             }
 
             return null;
-        }
-    }
-
-    public interface IPropertyRepository
-    {
-        IEnumerable<IProperty> GetAll();
-    }
-
-    public class InstancePropertyRepository : IPropertyRepository
-    {
-        private readonly object _sourceInstance;
-
-        public InstancePropertyRepository(object sourceInstance)
-        {
-            _sourceInstance = sourceInstance;
-        }
-
-        public IEnumerable<IProperty> GetAll()
-        {
-            return PropertyHelpers.GetAvailablePropertiesFrom(_sourceInstance);
-        }
-    }
-
-    public class TypePropertyRepository : IPropertyRepository
-    {
-        private readonly Type _sourceType;
-
-        public TypePropertyRepository(Type sourceType)
-        {
-            _sourceType = sourceType;
-        }
-
-        public IEnumerable<IProperty> GetAll()
-        {
-            return PropertyHelpers.GetAvailablePropertiesFrom(_sourceType);
         }
     }
 }

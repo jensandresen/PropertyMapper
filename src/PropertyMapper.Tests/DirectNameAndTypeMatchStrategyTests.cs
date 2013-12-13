@@ -18,7 +18,7 @@ namespace PropertyMapper.Tests
             var sourceProperty = new FakeProperty<string>("Foo");
             var sut = new DirectNameAndTypeMatchStrategy(new StubPropertyRepository(properties));
 
-            var actual = sut.GetMatchFor(sourceProperty);
+            var actual = sut.GetBridgeFor(sourceProperty);
 
             Assert.AreEqual(sourceProperty.Name, actual.SourceProperty.Name);
             Assert.AreEqual(sourceProperty.Type, actual.SourceProperty.Type);
@@ -36,7 +36,7 @@ namespace PropertyMapper.Tests
             var sourceProperty = new FakeProperty<int>("Foo");
             var sut = new DirectNameAndTypeMatchStrategy(new StubPropertyRepository(properties));
 
-            var actual = sut.GetMatchFor(sourceProperty);
+            var actual = sut.GetBridgeFor(sourceProperty);
 
             Assert.IsNull(actual);
         }
@@ -49,7 +49,7 @@ namespace PropertyMapper.Tests
             var sourceProperty = new FakeProperty<string>("Foo");
             var sut = new DirectNameAndTypeMatchStrategy(new StubPropertyRepository(properties));
 
-            var actual = sut.GetMatchFor(sourceProperty);
+            var actual = sut.GetBridgeFor(sourceProperty);
 
             Assert.IsNull(actual);
         }

@@ -41,12 +41,15 @@
   <ItemGroup>
     <Compile Include="Configuration.cs" />
     <Compile Include="IConfiguration.cs" />
+    <Compile Include="InstancePropertyRepository.cs" />
     <Compile Include="IProperty.cs" />
+    <Compile Include="IPropertyRepository.cs" />
     <Compile Include="Mapper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PropertyHelpers.cs" />
     <Compile Include="PropertyInfoAdapter.cs" />
     <Compile Include="StringHelper.cs" />
+    <Compile Include="TypePropertyRepository.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
